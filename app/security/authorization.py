@@ -1,8 +1,6 @@
 from functools import wraps
-
 from flask import abort
 from flask_login import current_user
-
 
 def admin_required(view_function):
     @wraps(view_function)
@@ -12,5 +10,4 @@ def admin_required(view_function):
         if current_user.role != "admin":
             abort(403)
         return view_function(*args, **kwargs)
-
     return wrapped_view
