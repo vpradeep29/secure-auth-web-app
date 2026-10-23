@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} · SecureAuth{% endblock %}
+{% block content %}
+<section class="form-card"><p class="eyebrow">REQUEST NOT COMPLETED</p><h1>{{ code }}</h1><p class="lead">{{ message }}</p><a class="button" href="{{ url_for('main.home') }}">Return home</a></section>
+{% endblock %}
