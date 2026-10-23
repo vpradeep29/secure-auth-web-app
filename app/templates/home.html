@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}SecureAuth — Secure Authentication{% endblock %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">SECURITY-FIRST AUTHENTICATION</p>
+  <h1>Identity and access, <span>built with security in mind.</span></h1>
+  <p class="lead">A Flask learning project demonstrating password hashing, CSRF-protected forms, authenticated sessions, role-based access, and database-backed audit events.</p>
+  <div class="actions">
+    {% if current_user.is_authenticated %}
+      <a class="button" href="{{ url_for('main.dashboard') }}">Open dashboard</a>
+    {% else %}
+      <a class="button" href="{{ url_for('main.register') }}">Create account</a>
+      <a class="button secondary" href="{{ url_for('main.login') }}">Sign in</a>
+    {% endif %}
+  </div>
+</section>
+<section class="panel">
+  <h2>Implemented security controls</h2>
+  <div class="feature-grid">
+    <article><h3>Argon2</h3><p>Password hashes are stored instead of plaintext passwords.</p></article>
+    <article><h3>CSRF protection</h3><p>State-changing forms use Flask-WTF CSRF tokens.</p></article>
+    <article><h3>Audit events</h3><p>Registration and authentication events are stored in the database.</p></article>
+    <article><h3>Role checks</h3><p>Administrative routes require an authenticated admin role.</p></article>
+  </div>
+</section>
+{% endblock %}
