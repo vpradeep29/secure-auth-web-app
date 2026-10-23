@@ -1,6 +1,8 @@
 import os
 import tempfile
 import unittest
+
+from sqlalchemy import inspect
 from app import create_app, db
 from app.models import AuditLog, User
 
@@ -62,10 +64,58 @@ class AuthFlowTests(unittest.TestCase):
         self.login()
         self.assertEqual(self.client.get('/admin').status_code, 403)
 
+    def test_registration_rejects_password_without_digit(self):
+        response = self.client.post("/register", data={
+            "email": "weak@example.com",
+            "password": "StrongPasswordABC!",
+            "confirm_password": "StrongPasswordABC!",
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Password must contain a digit", response.data)
+        with self.app.app_context():
+            self.assertIsNone(User.query.filter_by(email="weak@example.com").first())
+
+    def test_deactivated_user_is_not_loaded_from_existing_session(self):
+        self.register()
+        self.login()
+        with self.app.app_context():
+            user = User.query.filter_by(email="person@example.com").one()
+            user.is_active = False
+            db.session.commit()
+        self.assertEqual(self.client.get("/dashboard").status_code, 302)
+
+    def test_csrf_rejects_post_without_token(self):
+        class CsrfConfig(TestConfig):
+            WTF_CSRF_ENABLED = True
+        csrf_app = create_app(CsrfConfig)
+        response = csrf_app.test_client().post("/register", data={
+            "email": "csrf@example.com",
+            "password": "StrongPassword123!",
+            "confirm_password": "StrongPassword123!",
+        })
+        self.assertEqual(response.status_code, 400)
+
     def test_security_headers_present(self):
         response = self.client.get('/')
         self.assertEqual(response.headers.get('X-Frame-Options'), 'DENY')
         self.assertIn('Content-Security-Policy', response.headers)
+
+class MigrationTests(unittest.TestCase):
+    def test_fresh_database_migrates_with_flask_migrate(self):
+        temp_dir = tempfile.TemporaryDirectory()
+        try:
+            class MigrationConfig(TestConfig):
+                SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(temp_dir.name, "migration.db")
+            app = create_app(MigrationConfig)
+            result = app.test_cli_runner().invoke(args=["db", "upgrade"])
+            self.assertEqual(result.exit_code, 0, msg=result.output)
+            with app.app_context():
+                tables = inspect(db.engine).get_table_names()
+                self.assertIn("users", tables)
+                self.assertIn("audit_logs", tables)
+        finally:
+            temp_dir.cleanup()
+
 
 if __name__ == '__main__':
     unittest.main()
