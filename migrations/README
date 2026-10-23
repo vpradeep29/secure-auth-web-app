@@ -1,0 +1,21 @@
+SecureAuth database migrations
+
+Fresh database:
+    flask --app run.py db upgrade
+
+Inspect proposed schema changes:
+    flask --app run.py db migrate -m "Describe schema change"
+
+Apply migrations:
+    flask --app run.py db upgrade
+
+Do not edit an applied migration; create a new revision for later schema changes.
+
+Existing development database:
+If the database was previously created with db.create_all(), back it up first and
+verify its schema matches the current migration head before stamping it:
+    flask --app run.py db stamp head
+
+Only use stamp after confirming all expected tables, columns, constraints, and
+indexes already exist. Stamping records migration state; it does not modify the
+schema. If the schema differs, plan and apply a proper migration instead.
