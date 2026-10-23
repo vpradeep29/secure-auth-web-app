@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Admin console · SecureAuth{% endblock %}
+{% block content %}
+<section class="page-heading"><p class="eyebrow">RESTRICTED AREA</p><h1>Administrator console</h1><p class="muted">Counts and tables below are queried from the application database.</p></section>
+<section class="stats-grid">
+  <article class="stat"><span>Total users</span><strong>{{ total_users }}</strong></article>
+  <article class="stat"><span>Active users</span><strong>{{ active_users }}</strong></article>
+  <article class="stat"><span>Inactive users</span><strong>{{ inactive_users }}</strong></article>
+  <article class="stat"><span>Audit events</span><strong>{{ total_events }}</strong></article>
+  <article class="stat"><span>Successful logins</span><strong>{{ login_successes }}</strong></article>
+  <article class="stat"><span>Failed logins</span><strong>{{ login_failures }}</strong></article>
+  <article class="stat"><span>Registrations</span><strong>{{ registrations }}</strong></article>
+</section>
+<section class="panel">
+  <h2>Registered users</h2>
+  <div class="table-wrap"><table><thead><tr><th>ID</th><th>Email</th><th>Role</th><th>Status</th><th>Created</th><th>Action</th></tr></thead><tbody>
+  {% for user in users %}
+  <tr><td>{{ user.id }}</td><td>{{ user.email }}</td><td>{{ user.role }}</td><td>{{ "Active" if user.is_active else "Inactive" }}</td><td>{{ user.created_at.strftime("%Y-%m-%d") }}</td><td>
+    {% if user.id != current_user.id %}
+    <form method="post" action="{{ url_for('main.update_user_status', user_id=user.id) }}" class="inline-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="is_active" value="{{ 'false' if user.is_active else 'true' }}">
+      <button class="small-button" type="submit">{{ "Deactivate" if user.is_active else "Activate" }}</button>
+    </form>
+    {% else %}<span class="muted">Current admin</span>{% endif %}
+  </td></tr>
+  {% else %}<tr><td colspan="6">No users found.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+<section class="panel">
+  <h2>Recent audit events</h2>
+  <div class="table-wrap"><table><thead><tr><th>Event</th><th>User</th><th>Description</th><th>IP address</th><th>Timestamp</th></tr></thead><tbody>
+  {% for event in recent_events %}
+  <tr><td>{{ event.event_type }}</td><td>{{ event.user.email if event.user else "Unknown account" }}</td><td>{{ event.description }}</td><td>{{ event.ip_address or "Unavailable" }}</td><td>{{ event.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</td></tr>
+  {% else %}<tr><td colspan="5">No audit events recorded.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}
