@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · SecureAuth{% endblock %}
+{% block content %}
+<section class="page-heading"><p class="eyebrow">ACCOUNT OVERVIEW</p><h1>Your dashboard</h1><p class="muted">Signed in as {{ current_user.email }}</p></section>
+<section class="stats-grid">
+  <article class="stat"><span>Account status</span><strong>{{ "Active" if current_user.is_active else "Inactive" }}</strong></article>
+  <article class="stat"><span>Role</span><strong>{{ current_user.role }}</strong></article>
+  <article class="stat"><span>User ID</span><strong>#{{ current_user.id }}</strong></article>
+</section>
+<section class="panel">
+  <h2>Your recent activity</h2>
+  {% if recent_events %}
+  <div class="table-wrap"><table><thead><tr><th>Event</th><th>Description</th><th>IP</th><th>Time</th></tr></thead><tbody>
+  {% for event in recent_events %}<tr><td>{{ event.event_type }}</td><td>{{ event.description }}</td><td>{{ event.ip_address or "Unavailable" }}</td><td>{{ event.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</td></tr>{% endfor %}
+  </tbody></table></div>
+  {% else %}<p class="muted">No audit events are recorded for this account yet.</p>{% endif %}
+</section>
+{% endblock %}
