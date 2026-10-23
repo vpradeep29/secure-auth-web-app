@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Create account · SecureAuth{% endblock %}
+{% block content %}
+<section class="form-card">
+  <p class="eyebrow">GET STARTED</p><h1>Create your account</h1>
+  <p class="muted">Use a strong, unique password of at least 12 characters.</p>
+  <form method="post">
+    {{ form.hidden_tag() }}
+    <label>{{ form.email.label }}{{ form.email(placeholder="you@example.com", autocomplete="email") }}</label>
+    {% for error in form.email.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    <label>{{ form.password.label }}{{ form.password(placeholder="At least 12 characters", autocomplete="new-password") }}</label>
+    {% for error in form.password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    <label>{{ form.confirm_password.label }}{{ form.confirm_password(placeholder="Repeat password", autocomplete="new-password") }}</label>
+    {% for error in form.confirm_password.errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    {{ form.submit(class="button full-width") }}
+  </form>
+</section>
+{% endblock %}
