@@ -94,7 +94,10 @@ def update_user_status(user_id):
     if user.id == current_user.id:
         flash('You cannot deactivate your own administrator account.', 'error')
         return redirect(url_for('main.admin'))
-    user.is_active = request.form.get('is_active') == 'true'
+    requested_status = request.form.get('is_active')
+    if requested_status not in {"true", "false"}:
+        abort(400)
+    user.is_active = requested_status == "true"
     record_event('ADMIN_USER_STATUS_CHANGED', f'Administrator changed account status for user ID {user.id}.', current_user.id)
     db.session.commit()
     flash('User status updated.', 'success')
