@@ -59,4 +59,4 @@ The database initializer uses db.create_all() for a fresh local database. Existi
 
 ## Validation status
 
-The code has not yet been executed in a clean environment as part of this commit. Run the test suite before relying on the application or claiming verified functionality.
+GitHub Actions runs automated tests on pushes and pull requests. The suite covers authentication behavior and fresh-database migration checks. Passing CI is useful verification, but does not replace manual acceptance tests or a production security review.
