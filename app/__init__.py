@@ -94,8 +94,12 @@ def create_app(config_object=Config):
 
 @login_manager.user_loader
 def load_user(user_id):
+    """Do not restore deactivated users from an existing session."""
     from app.models import User
     try:
-        return db.session.get(User, int(user_id))
+        user = db.session.get(User, int(user_id))
     except (TypeError, ValueError):
         return None
+    if user is None or not user.is_active:
+        return None
+    return user
